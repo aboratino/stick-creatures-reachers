@@ -13,7 +13,14 @@ class Target:
         self.size = 20
         self.color = (200, 100, 10)
 
+    def update(self):
+        if self.x < 1024:
+            self.x += 1
+        else:
+            self.x = 1
+
     def draw(self):
+        self.update()
         pygame.gfxdraw.filled_circle(self.screen,
                                      int(self.x),
                                      int(self.y),
