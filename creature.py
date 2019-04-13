@@ -17,7 +17,7 @@ START_X = 512
 
 CHANCE = 5                  # One in 'CHANCE' chance of mutation.
 N_SEG = 35                  # number of segments per creature
-MUTATE_MULTIPLIER = 100     # Used to magnify the value of mutation
+MUTATE_MULTIPLIER = 80      # Used to magnify the value of mutation
 
 
 # class Creature
@@ -63,7 +63,6 @@ class Creature:
 
         # create segments, initialize starting rotations of segments and
         # initialize rotation rates of segments.
-        # for i in range(self.n_segments):
         for i in range(self.n_segments):
             self.limb.append(Segment(self.screen))
             self.limb[i].grotation = self.limb[i].rotation = randrange(0, 360)
@@ -114,3 +113,4 @@ class Creature:
             self.limb[i].rotation = ((self.limb[i].rotation + best.limb[i].grotation) / 2) + self.mutate()
             self.limb[i].grotation = self.limb[i].rotation
 # End class Creature
+
