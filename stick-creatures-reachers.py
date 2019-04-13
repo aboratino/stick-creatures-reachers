@@ -108,7 +108,6 @@ while not done:
             if event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
                 done = True
             elif event.key == pygame.K_SPACE:
-                target.x = randrange(1, WIDTH)
                 target.y = randrange(1, HEIGHT-200)
             elif event.key == pygame.K_w:
                 show_best = not show_best
