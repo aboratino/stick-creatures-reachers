@@ -24,19 +24,13 @@ from target import Target
 from random import randrange
 import math
 
-
-def dislpay_instructions():
-    font = pygame.font.Font(None, 26)
-    txt = "Press [SPACE] to move target.  Press [W] to toggle showing the only winner vs. the entire population"
-    render = font.render(txt, 0, (255, 255, 255), (0, 0, 0))
-    screen.blit(render, (110, 730))
-
-
 # Setup screen
 WIDTH = 1024
 HEIGHT = 768
 SIZE = (WIDTH, HEIGHT)
 TITLE = "Stick Creatures - Tentacles"
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 
 # Startup
 pygame.init()
@@ -55,13 +49,21 @@ distance = 0                        # distance to target
 target = Target(screen, 200, 200)   # target
 show_best = True                    # toggle for showing entire population vs only the winner
 
+
+def dislpay_instructions():
+    font = pygame.font.Font(None, 26)
+    txt = "Press [SPACE] to move target.  Press [W] to toggle showing the only winner vs. the entire population"
+    render = font.render(txt, 0, WHITE, BLACK)
+    screen.blit(render, (110, 730))
+
+
 # create creatures and target
 for i in range(population):
-    creatures.append(Creature(i, screen))
+    creatures.append(Creature(screen))
 
 # Main loop
 while not done:
-    screen.fill((0, 0, 0))
+    screen.fill(BLACK)
     n_gens += 1
 
     # reset breeding variables
@@ -76,13 +78,10 @@ while not done:
             best_distance = distance
             best = i
 
-    # Breed!
+    # Breed
     for i in range(len(creatures)):
         if i != best:
             creatures[i].breedwith(creatures[best])
-
-    # report - uncomment to report stats.
-    # print "Generation:", n_gens, " Best: #", best, "Height:", best_distance
 
     # Draw the target
     target.draw()

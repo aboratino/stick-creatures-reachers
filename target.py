@@ -4,17 +4,20 @@
 
 import pygame.gfxdraw
 
+COLOR_TARGET = (200, 100, 10)
+SIZE_TARGET = 20
+
 
 class Target:
     def __init__(self, screen, x, y):
         self.screen = screen
         self.x = x
         self.y = y
-        self.size = 20
-        self.color = (200, 100, 10)
+        self.size = SIZE_TARGET
+        self.color = COLOR_TARGET
 
     def update(self):
-        if self.x < 1024:
+        if self.x < self.screen.get_width():
             self.x += 1
         else:
             self.x = 1

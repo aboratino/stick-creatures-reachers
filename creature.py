@@ -16,81 +16,63 @@ START_Y = 700               # root location of all creatures
 START_X = 512
 
 CHANCE = 5                  # One in 'CHANCE' chance of mutation.
-N_SEG = 35                  # number of segments per creature
+NUM_SEGMENTS = 35           # number of segments per creature
+LENGTH_SEG = 18
+
 MUTATE_MULTIPLIER = 80      # Used to magnify the value of mutation
 
+SIZE_JOINT = 3
+SIZE_BASE = 5
+SIZE_END = 5
 
-# class Creature
+
 class Segment:
-    def __init__(self, screen):
-        self.screen = screen            # screen to draw on
-        self.length = 18                # segment length
-        self.bx = 0                     # begin x
-        self.by = 0                     # begin y
-        self.ex = 0                     # end x
-        self.ey = 0                     # end y
-        self.grotation = 0              # segments genenetic start rotation
-        self.rotation = 0               # segments current rotation
-        self.is_first = False
-        self.is_last = False
-
-    def draw(self):
-
-        # draw lines to represent segments
-        pygame.gfxdraw.line(self.screen, int(self.bx), int(self.by), int(self.ex), int(self.ey), WHITE)
-
-        if not self.is_first and not self.is_last:
-            pygame.gfxdraw.filled_circle(self.screen, int(self.bx), int(self.by), 3, BLUE)
-
-        # if first point
-        if self.is_first:
-            pygame.gfxdraw.filled_circle(self.screen, int(self.bx), int(self.by), 6, GREEN)
-
-        # if last point
-        if self.is_last:
-            pygame.gfxdraw.filled_circle(self.screen, int(self.ex), int(self.ey), 4, GREEN)
-            pygame.gfxdraw.filled_circle(self.screen, int(self.bx), int(self.by), 3, BLUE)
-# End class Creature
+    def __init__(self, grot):
+        self.bx = 0             # begin x
+        self.by = 0             # begin y
+        self.ex = 0             # end x
+        self.ey = 0             # end y
+        self.grot = grot        # segments genetic start rotation
+        self.rot = grot         # segments current rotation
 
 
-# class Creature
 class Creature:
-    def __init__(self, cid, screen):
-        self.cid = cid                  # creature id
-        self.screen = screen
-        self.n_segments = N_SEG
-        self.limb = []
+    def __init__(self, screen):
+        self.screen = screen        # screen to draw on
+        self.limb = []              # an array of of limbs
 
-        # create segments, initialize starting rotations of segments and
-        # initialize rotation rates of segments.
-        for i in range(self.n_segments):
-            self.limb.append(Segment(self.screen))
-            self.limb[i].grotation = self.limb[i].rotation = randrange(0, 360)
+        # append segments with random rotations to limb
+        for i in range(NUM_SEGMENTS):
+            self.limb.append(Segment(randrange(0, 360)))
 
-        self.limb[0].is_first = True
-        self.limb[-1].is_last = True
+        # set base location of the first limb
+        self.limb[0].bx = START_X
+        self.limb[0].by = START_Y
 
+    # return new x and y for endpoints
     def new_ex(self, i):
-        return self.limb[i].length * math.sin(self.limb[i].rotation * (math.pi / 180.0))
+        return int(LENGTH_SEG * math.sin(self.limb[i].rot * (math.pi / 180.0)))
 
     def new_ey(self, i):
-        return self.limb[i].length * math.cos(self.limb[i].rotation * (math.pi / 180.0))
+        return int(LENGTH_SEG * math.cos(self.limb[i].rot * (math.pi / 180.0)))
 
+    # calculate new endpoints
     def calc_endpoint(self, i):
         self.limb[i].ex = self.limb[i].bx + self.new_ex(i)
         self.limb[i].ey = self.limb[i].by + self.new_ey(i)
 
     # update location of segments
     def update(self):
-        self.limb[0].bx = START_X
-        self.limb[0].by = START_Y
+        # calculate first segments endpoint
         self.calc_endpoint(0)
 
-        for i in range(1, self.n_segments):
+        # calculate the rest
+        for i in range(1, NUM_SEGMENTS):
             self.limb[i].bx = self.limb[i - 1].ex
             self.limb[i].by = self.limb[i - 1].ey
             self.calc_endpoint(i)
 
+    # One in 'CHANCE' chance to return a mutation value between -0.5 and 0.5
     @staticmethod
     def mutate():
         if randrange(CHANCE) == 1:
@@ -100,8 +82,44 @@ class Creature:
 
     # draw all the segments
     def draw(self):
-        for i in range(self.n_segments):
-            self.limb[i].draw()
+        for i in range(NUM_SEGMENTS):
+
+            # draw lines to represent segments
+            pygame.gfxdraw.line(self.screen,
+                                self.limb[i].bx,
+                                self.limb[i].by,
+                                self.limb[i].ex,
+                                self.limb[i].ey,
+                                WHITE)
+
+            # if first segment draw a base
+            if i == 0:
+                pygame.gfxdraw.filled_circle(self.screen,
+                                             self.limb[i].bx,
+                                             self.limb[i].by,
+                                             SIZE_BASE,
+                                             GREEN)
+
+            # draw a 'joint' between segments
+            if i and i < NUM_SEGMENTS-1:
+                pygame.gfxdraw.filled_circle(self.screen,
+                                             self.limb[i].bx,
+                                             self.limb[i].by,
+                                             SIZE_JOINT,
+                                             BLUE)
+
+            # if last segment draw the last joint and tip
+            if i == NUM_SEGMENTS-1:
+                pygame.gfxdraw.filled_circle(self.screen,
+                                             self.limb[i].bx,
+                                             self.limb[i].by,
+                                             SIZE_JOINT,
+                                             BLUE)
+                pygame.gfxdraw.filled_circle(self.screen,
+                                             self.limb[i].ex,
+                                             self.limb[i].ey,
+                                             SIZE_END,
+                                             GREEN)
 
     # return location of head
     def get_loc(self):
@@ -109,8 +127,7 @@ class Creature:
 
     # breed, for each segment blend and mutate with winner's segments
     def breedwith(self, best):
-        for i in range(self.n_segments):
-            self.limb[i].rotation = ((self.limb[i].rotation + best.limb[i].grotation) / 2) + self.mutate()
-            self.limb[i].grotation = self.limb[i].rotation
+        for i in range(NUM_SEGMENTS):
+            self.limb[i].rot = ((self.limb[i].rot + best.limb[i].grot) / 2) + self.mutate()
+            self.limb[i].grot = self.limb[i].rot
 # End class Creature
-
