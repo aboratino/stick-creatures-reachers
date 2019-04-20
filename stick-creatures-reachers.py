@@ -92,6 +92,7 @@ while not done:
     for i in range(len(creatures)):
         creatures[i].update()
 
+    # show only the winner or the entire population
     if show_best:
         creatures[best].draw()
     else:
