@@ -128,6 +128,11 @@ class Creature:
     # breed, for each segment blend and mutate with winner's segments
     def breedwith(self, best):
         for i in range(NUM_SEGMENTS):
+            # Average the segment rotations with the winners 
+            # genetic segment rotations (with a chance of mutation).
+            #
+            # Use the new values to update all the segments genetic 
+            # rotation values, thus burthing a new limb.
             self.limb[i].rot = ((self.limb[i].rot + best.limb[i].grot) / 2) + self.mutate()
             self.limb[i].grot = self.limb[i].rot
 # End class Creature
